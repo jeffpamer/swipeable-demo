@@ -31,7 +31,7 @@ const Composer = Composee => class Swipeable extends Component {
         this._panResponder = PanResponder.create({
             onStartShouldSetPanResponder: () => true,
             onMoveShouldSetPanResponder: () => true,
-            onPanResponderMove: this._handlePanResponderMove,
+            onPanResponderMove: Animated.event([null, {dx: this.state.pan.x, dy: this.state.pan.y}]),
             onPanResponderEnd: this._handlePanResponderEnd
         })
     }
@@ -52,26 +52,26 @@ const Composer = Composee => class Swipeable extends Component {
     }
 
     _handlePanResponderEnd(e, gestureState) {
-        // Set start x/y point for animation
-        this.state.pan.setValue({x: gestureState.dx, y: gestureState.dy});
-
-        // Undo position changes we made through nativeProps
-        // (because the animation takes over from here)
-        this.swipeable.setNativeProps({top: 0, left: 0})
-
         // Spring back to the center
         Animated.spring(this.state.pan, {
-            friction: 7,
-            tension: 55,
+            tension: 55, // Slightly faster than default
             toValue: { x: 0, y: 0 }
         }).start()
     }
 
     render() {
+        let transform = this.state.pan.getTranslateTransform()
+        transform.push({
+            rotate: this.state.pan.x.interpolate({
+                inputRange: [-200, 0, 200],
+                outputRange: ["-30deg", "0deg", "30deg"]
+            })
+        })
+
         return (
             <Animated.View
                 ref={this._setRef}
-                style={{transform: this.state.pan.getTranslateTransform()}}
+                style={{transform: transform}}
                 {...this._panResponder.panHandlers}
             >
                 <Composee {...this.props} />
