@@ -18,13 +18,18 @@ const SwipeableComposer = Composee => class Swipeable extends Component {
         super(props)
 
         this.state = {
-            pan: new Animated.ValueXY()
+            pan: new Animated.ValueXY(),
+            scale: new Animated.Value(0.5)
         }
 
         this._setRef = this._setRef.bind(this)
         this._handlePanResponderGrant = this._handlePanResponderGrant.bind(this)
         this._handlePanResponderMove = this._handlePanResponderMove.bind(this)
         this._handlePanResponderEnd = this._handlePanResponderEnd.bind(this)
+    }
+
+    componentDidMount() {
+        this._animateEntrance()
     }
 
     componentWillMount() {
@@ -43,6 +48,13 @@ const SwipeableComposer = Composee => class Swipeable extends Component {
 
     _setRef(ref) {
         this.swipeable = ref
+    }
+
+    _animateEntrance() {
+        Animated.spring(
+            this.state.scale,
+            { toValue: 1, tension: 65 }
+        ).start();
     }
 
     _updatePosition() {
@@ -94,6 +106,9 @@ const SwipeableComposer = Composee => class Swipeable extends Component {
                 inputRange: [-200, 0, 200],
                 outputRange: ["-33deg", "0deg", "33deg"]
             })
+        })
+        transform.push({
+            scale: this.state.scale
         })
 
         return (
