@@ -16,12 +16,42 @@ const { width, height } = Dimensions.get('window')
 class SwipeableDemo extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            cards: []
+        }
+
+        this.onSwipe = this.onSwipe.bind(this)
+        this.replaceCard = this.replaceCard.bind(this)
+    }
+
+    componentDidMount() {
+        this._cardKey = 0;
+        this.replaceCard()
+    }
+
+    replaceCard() {
+        const randoColor = `#${Math.random().toString(16).slice(2, 8)}`
+        this.setState({
+            cards: [randoColor]
+        })
+    }
+
+    onSwipe() {
+        this._cardKey++;
+        this.replaceCard()
+    }
+
+    renderCards() {
+        return this.state.cards.map(card => {
+            return <Card style={[styles.card, {backgroundColor: card}]} key={this._cardKey} onSwipe={this.onSwipe}/>
+        })
     }
 
     render() {
         return (
             <View style={styles.container}>
-                <Card style={styles.card} />
+                {this.renderCards()}
             </View>
         );
     }
